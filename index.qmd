@@ -257,14 +257,15 @@ print(shipments_with_lateness[['shipID', 'plannedShipDate', 'actualShipDate', 'i
 - Can you give an example where comparing two dates as strings would yield unintuitive results, e.g. what happens if you try to compare "04-11-2025" and "05-20-2024" as strings vs as dates?
 
 **Question 3: Debug This Code**
-```python
+```{python}
 # This code has an error - can you spot it?
 shipments_with_lateness = (
     shipments_df
     .assign(
         is_late=lambda df: df['actualShipDate'] > df['plannedShipDate'],
         days_late=lambda df: (df['actualShipDate'] - df['plannedShipDate']).dt.days,
-        lateStatement="Darn Shipment is Late" if shipments_df['is_late'] else "Shipment is on Time"
+        #lateStatement="Darn Shipment is Late" if shipments_df['is_late'] else "Shipment is on Time"
+        lateStatement=lambda df: np.where(df['is_late'], "Darn Shipment is Late", "Shipment is on Time")
     )
 )
 ```
@@ -273,17 +274,19 @@ What's wrong with the `lateStatement` assignment and how would you fix it?
 
 ::: {.callout-tip}
 ## Your Answer: Data Types and Date Handling
-*Replace this with your answer to Question 1.*
+*<M8[us] > datetime64 - shipments_df['actualShipDate'].dtype*
+*Being the same data type allows cross comparisons of the dates. If the dates are not the same data type, the comparison will not work and will return an error.*
 :::
 
 ::: {.callout-tip}
 ## Your Answer: String vs Date Comparison
-*Replace this with your answer to Question 2.*
+*When comparing two dates as strings, the comparison will be based on the first character of the string. For example, "04-11-2025" is smaller than "05-20-2024" because the first character of "04-11-2025" is "04" which is smaller than the first character of "05-20-2024" which is "05".*
+*When comparing two dates as dates, the comparison will be based on the actual date values.So "04-11-2025" is considered larger than "05-20-2024" because the the year 2025 is after or larger than the year 2024.*
 :::
 
 ::: {.callout-tip}
 ## Your Answer: Debug This Code
-*Replace this with your answer to Question 3.*
+*is_late is being created in the same .assign() call, so it doesn’t exist on shipments_df yet.lateStatement is not inside a lambda, so it doesn’t receive the updated dataframe df that would contain is_late*
 :::
 
 ### 2. Subset: Querying Rows and Filtering Columns
