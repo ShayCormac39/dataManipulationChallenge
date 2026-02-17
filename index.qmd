@@ -436,12 +436,16 @@ print(sorted_by_lateness[['shipID', 'partID', 'days_late', 'is_late']].head(10))
 
 ::: {.callout-tip}
 ## Your Answer: Sorting Strategies
-*Replace this with your answer to Question 1.*
+*`ascending=False`will sort in descending order and `ascending=True` will sort in ascending order.*
+
+*df.sort_values(by=['is_late', 'days_late'], ascending=[False, True]) will sort by is_late in descending order and then by days_late in ascending order.*
 :::
 
 ::: {.callout-tip}
 ## Your Answer: Index Management
-*Replace this with your answer to Question 2.*
+*If we don't use .reset_index(drop=True), the index will be the original index which the first row in the sorted data may not be the first row in the original data. We use .reset_index(drop=True) to reset the index to be sequential and drop/delete the original index.*
+
+*When you sort, rows are reordered but their index labels stay attached. So the index does not reflect the new order. Which can lead to gaps and duplicates where you can end up with non-sequential indices like [5, 2, 8, 1]. It may also cause problems for future operations where functions that assume a regular 0-based index can behave unexpectedly.*
 :::
 
 ### 5. Aggregate: Summarizing Data
