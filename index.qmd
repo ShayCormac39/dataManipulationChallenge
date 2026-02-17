@@ -386,12 +386,18 @@ print("Remaining columns:", clean_shipments.columns.tolist())
 
 ::: {.callout-tip}
 ## Your Answer: Drop vs Filter Strategies
-*Replace this with your answer to Question 1.*
+*Difference: `.drop(columns=['quantity'])` specifies which columns to remove — you get all columns except the ones you drop. `.filter([...])` with a list of column names specifies which columns to keep — you get only those columns.*
+
+*When to choose which: Use drop when you want to remove a small number of columns from a wide table (e.g. drop one or two you don’t need). Use filter (or column selection) when you want a specific subset of columns and the rest don’t matter — e.g. for reporting or passing data to a function that expects certain columns. Drop is “remove these”; filter is “keep only these.”*
 :::
 
 ::: {.callout-tip}
 ## Your Answer: Handling Missing Data
-*Replace this with your answer to Question 2.*
+*Without `subset`: `.dropna()` drops every row that has a missing value in any column. One NaN in any column removes that row.*
+
+*With `subset`: `.dropna(subset=['plannedShipDate', 'actualShipDate'])` drops only rows that are missing in those columns. Other columns can have NaNs and the row is kept.*
+
+*Why be selective? You often care about missingness only in columns that matter for your analysis (e.g. dates for lateness). If other columns have valid NaNs or optional data, using `.dropna()` on the whole table would remove too many rows. Being selective keeps rows where the key columns are present and ignores missing values in less important columns.*
 :::
 
 ### 4. Sort: Arranging Data
