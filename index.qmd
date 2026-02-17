@@ -332,12 +332,22 @@ print(late_shipments.head())
 
 ::: {.callout-tip}
 ## Your Answer: Query vs Boolean Indexing
-*Replace this with your answer to Question 1.*
+*The main differences are syntax  and how you refer to columns (names in a string vs df['col']). For this single condition, the resulting subset is the same but when there are multiple conditions,the query syntax is more readable and easier to understand. Because query is more like English and has less repetitive syntax to write and for people to read which is easier to understand and write.*
 :::
 
 ::: {.callout-tip}
 ## Your Answer: Additional Row Querying
-*Replace this with your answer to Question 2.*
+```{python}
+late_threshold = 5
+very_late_shipments = (
+    shipments_with_lateness
+    .query('days_late >= @late_threshold')
+    .filter(['shipID', 'partID', 'plannedShipDate', 'actualShipDate', 'days_late'])
+)
+print(f"Shipments at least {late_threshold} days late: {len(very_late_shipments)}")
+print(very_late_shipments.head())
+```
+*Use a variable (e.g. `late_threshold = 5`) and refer to it inside `.query()` with `@`:`df.query('days_late >= @late_threshold')`. The `@` tells pandas to use the Python variable's value, not a column name. Example: `late_threshold = 5` then `shipments_with_lateness.query('days_late >= @late_threshold')` gives rows that are at least 5 days late. Change `late_threshold` to reuse the same query for different cutoffs days.*
 :::
 
 ### 3. Drop: Removing Unwanted Data
