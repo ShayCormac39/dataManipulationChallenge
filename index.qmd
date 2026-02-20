@@ -486,7 +486,7 @@ print(f"\nOn-time delivery rate: {on_time_rate:.1f}%")
 
 ::: {.callout-tip}
 ## Your Answer: Boolean Aggregation
-*Replace this with your answer to Question 1.*
+*Boolean values in python are integers which are True = 1 and False = 0. So sum() will count/add up the number of True values.*
 :::
 
 ### 6. Merge: Combining Information
@@ -526,12 +526,17 @@ print(shipments_with_category['prodCategory'].value_counts())
 
 ::: {.callout-tip}
 ## Your Answer: Join Types and Data Loss
-*Replace this with your answer to Question 1.*
+*'how=left' will add all new columns to the right side of the existing columns. A left join keeps every row in clean_shipments, regardless of whether there is a matching partID in product_line_df.*
+*With how='inner', any shipment whose partID is not in product_line_df would be dropped. That can remove data without a clear signal.*
+*. Non-matching rows get NaNs in the new columns instead of disappearing.*
 :::
 
 ::: {.callout-tip}
 ## Your Answer: Key Column Matching
-*Replace this with your answer to Question 2.*
+*A left merge on partID will keep all rows from clean_shipments, but for each row in clean_shipments, every matching row in product_line_df is joined. If product_line_df has duplicates on partID, this causes one-to-many expansion:*
+*For a single shipID (and partID), you get multiple rows in the merged result—one for each matching row in product_line_df.*
+*Total row count in shipments_with_category becomes larger than clean_shipments.*
+*Fields from product_line_df (e.g. prodCategory) can differ across those rows if the duplicate partID rows have different values.*
 :::
 
 ### 7. Split-Apply-Combine: Group Analysis
@@ -572,12 +577,14 @@ print(service_by_category)
 
 ::: {.callout-tip}
 ## Your Answer: GroupBy Mechanics
-*Replace this with your answer to Question 1.*
+*.groupby('prodCategory') builds a GroupBy object that conceptually splits the DataFrame into subgroups by distinct values of prodCategory. For example, with prodCategory values like "Electronics", "Clothing", "Furniture", you get one group per category.The result is not a DataFrame but a lazy grouping structure. It doesn’t compute anything until you call a method like .sum(), .mean(), .agg(), etc.*
+*If we use .agg(): we explicitly choose the aggregation(s), e.g.grouped.agg({'price': 'mean', 'quantity': 'sum'})If we don’t aggregate at all after groupby, we end up with a GroupBy object that hasn’t been reduced. We can iterate over it or call other methods, but we won’t get a summary table until we perform some aggregation.*
 :::
 
 ::: {.callout-tip}
 ## Your Answer: Multi-Level Grouping
-*Replace this with your answer to Question 2.*
+*Grouping by ['shipID', 'prodCategory'] answers question like: “For each shipment (order), what is the total (or average, etc.) for each product category within that order?” We get one row per combination of shipID and prodCategory. We get one row per combination of shipID and prodCategory. Because one order can have multiple lines (different partIDs) in the same category, grouping by ['shipID', 'prodCategory'] aggregates those multiple lines into a single row per order per category. For example, if order #123 has three electronics parts, those three rows become one row for that order and category, with quantities/prices summed or averaged as we specify.*
+*Grouping by 'prodCategory' alone answers question like: “Across all orders, what is the total (or average, etc.) for each product category?” We get one summary row per category for the whole dataset. All orders are combined, so we don’t see how each shipment contributes.*
 :::
 
 ## Answering A Business Question
@@ -622,7 +629,20 @@ print(f"Percentage with multiple categories: {multi_category_shipments['shipID']
 
 ::: {.callout-tip}
 ## Your Answer: Business Question Analysis
-*Replace this with your answer to Question 1.*
+*1. What business question does this comprehensive analysis answer?*
+
+*It answers: “How do late shipments relate to product category mix, and how common are multi-category shipments?” It can let ZappTech see whether late shipments span multiple categories, where delays are worst by category, and how often shipments include more than one product category.*
+
+*2. How does grouping by `['shipID', 'prodCategory']` differ from grouping by just `'prodCategory'`?*
+
+*['shipID', 'prodCategory']: One row per shipment–category pair. Each shipment can appear multiple times if it has items from different categories. This keeps the shipment-level detail needed for multi-category analysis.*
+*['prodCategory']: One row per category across all shipments. Shipment identity is lost, so you can’t measure how many shipments mix categories or study late shipments by category within each shipment.*
+
+*3. What insights can ZappTech's management gain from knowing the percentage of multi-category shipments?* 
+*Supply chain: High multi-category share suggests orders often mix categories, which may increase coordination, picking, packing, or routing complexity.*
+*Operations: Multi-category shipments may have different delay patterns than single-category ones; this supports more targeted interventions.*
+*Customer behavior: Reflects how often customers order across categories in one shipment, which informs bundling, promotions, and fulfillment design.*
+*Capacity planning: Helps estimate how often warehouses handle mixed loads vs single-category loads, which affects staffing and layout.*
 :::
 
 ## Student Analysis Section: Mastering Data Manipulation {#student-analysis-section}
