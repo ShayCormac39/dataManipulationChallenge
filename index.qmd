@@ -682,6 +682,57 @@ print(f"Percentage with multiple categories: {multi_category_shipments['shipID']
 - Be appropriate for a business audience
 - Do not `echo` the code that creates the visualizations
 
+```{python}
+#| label: viz-service-level
+#| echo: false
+#| fig-cap: "Service Level by Product Category — On-time percentage of shipment-category combinations across ZappTech's product categories."
+#| fig-align: center
+
+# Calculate on-time percentage (service level) and shipment count by product category
+on_time_by_category = (
+    comprehensive_analysis
+    .groupby('prodCategory')
+    .agg(
+        on_time_pct=('is_late', lambda x: (1 - x.mean()) * 100),
+        n=('is_late', 'count')
+    )
+    .reset_index()
+    .sort_values('on_time_pct')
+)
+
+
+sns.set_theme(style='whitegrid', font_scale=1.05, rc={'axes.facecolor': '#f8f9fa', 'figure.facecolor': 'white'})
+fig, ax = plt.subplots(figsize=(10, 6), dpi=120)
+
+colors = ['#27ae60' if pct >= 90 else '#2980b9' if pct >= 80 else '#c0392b' for pct in on_time_by_category['on_time_pct']]
+bars = ax.barh(
+    on_time_by_category['prodCategory'],
+    on_time_by_category['on_time_pct'],
+    color=colors,
+    edgecolor='white',
+    linewidth=1.2,
+    height=0.72
+)
+
+ax.axvline(x=90, color='#7f8c8d', linestyle='--', linewidth=2, alpha=0.9, label='90% Target')
+ax.set_xlabel('On-Time Percentage (Service Level) (%)', fontsize=11, fontweight='600')
+ax.set_ylabel('Product Category', fontsize=11, fontweight='600')
+ax.set_title('Service Level by Product Category\nZappTech Shipment Performance', fontsize=13, fontweight='bold', pad=12)
+ax.set_xlim(0, 105)
+ax.legend(loc='lower right', frameon=True, fontsize=9)
+
+for bar, pct, n in zip(bars, on_time_by_category['on_time_pct'], on_time_by_category['n']):
+    x_pos = bar.get_width() + 2 if bar.get_width() < 85 else bar.get_width() - 8
+    ha = 'left' if bar.get_width() < 85 else 'right'
+    text_color = '#2c3e50' if bar.get_width() < 85 else 'white'
+    ax.text(x_pos, bar.get_y() + bar.get_height()/2, f'{pct:.1f}%  (n={n})', va='center', ha=ha, fontsize=9, fontweight='500', color=text_color)
+
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+plt.tight_layout()
+fig
+```
+
 ## Grading Rubric 🎓 {#grading-rubric}
 
 **75% Grade:** Complete discussion questions for at least 5 of the 7 mental models with clear, thoughtful responses.
